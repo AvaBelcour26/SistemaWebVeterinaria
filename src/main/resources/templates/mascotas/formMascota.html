@@ -26,7 +26,7 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
-            <form th:action="@{/mascotas/guardar}" th:object="${mascota}" method="post" class="form-mascota">
+            <form th:action="@{/templates/user/guardar}" th:object="${mascota}" method="post" class="form-mascota">
                 <input type="hidden" th:field="*{idMascota}" />
 
                 <div class="mb-4">
@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-5">
-                    <a th:href="@{/mascotas}" class="btn btn-secondary">
+                    <a th:href="@{/templates/user}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> <span th:text="#{cancelButton.text}">Cancelar</span>
                     </a>
                     <button type="submit" class="btn btn-primary">
