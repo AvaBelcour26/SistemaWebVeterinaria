@@ -12,17 +12,21 @@
             </div>
 
             <ul class="nav__list">
-                <a href="#" class="nav__link">
-                    <i class='bx bx-bell nav__icon' ></i>
-                    <span class="nav__text" th:text="#{sidebar.notification}">Notificaciones</span>
-                </a>
-                <a href="#" class="nav__link">
+                <a th:href="@{/mascotas}" class="nav__link">
                     <i class='bx bx-heart nav__icon'></i>
-                    <span class="nav__text" th:text="#{sidebar.favorites}">Favoritos</span>
+                    <span class="nav__text" th:text="#{sidebar.myPets}">Mis Mascotas</span>
                 </a>
-                <a href="#" class="nav__link">
-                    <i class='bx bx-bookmark nav__icon'></i>
-                    <span class="nav__text" th:text="#{sidebar.saved}">Guardados</span>
+                <a th:href="@{/citas/mis-citas}" class="nav__link">
+                    <i class='bx bx-calendar nav__icon'></i>
+                    <span class="nav__text" th:text="#{sidebar.myAppointments}">Mis Citas</span>
+                </a>
+                <a th:href="@{/citas/agendar}" class="nav__link">
+                    <i class='bx bx-calendar-plus nav__icon'></i>
+                    <span class="nav__text" th:text="#{sidebar.scheduleAppointment}">Agendar Cita</span>
+                </a>
+                <a th:href="@{/mascotas/nueva}" class="nav__link">
+                    <i class='bx bx-plus-medical nav__icon'></i>
+                    <span class="nav__text" th:text="#{sidebar.addPet}">Agregar Mascota</span>
                 </a>
                 <!-- Dropdown para idiomas -->
                 <div class="dropdown-language">

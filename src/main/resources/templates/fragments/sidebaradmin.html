@@ -2,7 +2,7 @@
 <div class="l-navbar" id="navbar">
     <nav class="nav">
         <div>
-            <a href="#" class="nav__logo">
+            <a class="nav__logo">
                 <img th:src="@{/assets/logo/icono-logo.svg}" alt="" class="nav__logo-icon">
                 <span class="nav__logo-text">VetPlanet</span>
             </a>
@@ -12,25 +12,13 @@
             </div>
 
             <ul class="nav__list">
-                <a th:href="@{/admin/dashboard}" class="nav__link">
-                    <i class='bx bx-grid-alt nav__icon'></i>
-                    <span class="nav__text">Dashboard</span>
-                </a>
                 <a th:href="@{/admin/usuarios}" class="nav__link">
                     <i class='bx bx-user nav__icon'></i>
-                    <span class="nav__text">Usuarios</span>
+                    <span class="nav__text" th:text="#{sidebar.users}">Usuarios</span>
                 </a>
-                <a th:href="@{/admin/servicios}" class="nav__link">
-                    <i class='bx bx-first-aid nav__icon'></i>
-                    <span class="nav__text">Servicios</span>
-                </a>
-                <a th:href="@{/admin/citas}" class="nav__link">
-                    <i class='bx bx-calendar nav__icon'></i>
-                    <span class="nav__text">Citas</span>
-                </a>
-                <a th:href="@{/admin/reportes}" class="nav__link">
-                    <i class='bx bx-bar-chart-alt-2 nav__icon'></i>
-                    <span class="nav__text">Reportes</span>
+                <a th:href="@{/admin/usuarios/nuevo}" class="nav__link">
+                    <i class='bx bx-user-plus nav__icon'></i>
+                    <span class="nav__text" th:text="#{sidebar.addUser}">Agregar Usuario</span>
                 </a>
                 <!-- Dropdown para idiomas -->
                 <div class="dropdown-language">

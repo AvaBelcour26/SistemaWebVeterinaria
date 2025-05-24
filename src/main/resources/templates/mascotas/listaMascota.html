@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-end mb-4">
-                <a th:href="@{/templates/user/nueva}" class="btn btn-primary">
+                <a th:href="@{/mascotas/nueva}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> <span th:text="#{addPet.button}">Agregar Mascota</span>
                 </a>
             </div>
@@ -48,7 +48,7 @@
                 <i class="fas fa-paw"></i>
                 <h4 th:text="#{petsEmptyState.title}">No tienes mascotas registradas</h4>
                 <p class="text-muted" th:text="#{petsEmptyState.message}">Registra tu primera mascota haciendo clic en el botón "Agregar Mascota"</p>
-                <a th:href="@{/templates/user/nueva}" class="btn btn-primary mt-3">
+                <a th:href="@{/mascotas/nueva}" class="btn btn-primary mt-3">
                     <i class="fas fa-plus"></i> <span th:text="#{addPet.button}">Agregar Mascota</span>
                 </a>
             </div>
@@ -77,13 +77,13 @@
                         </div>
                         <div class="card-footer bg-transparent border-0">
                             <div class="d-flex justify-content-between">
-                                <a th:href="@{/templates/user/detalles/{id}(id=${mascota.idMascota})}" class="btn btn-outline-primary btn-sm">
+                                <a th:href="@{/mascotas/detalles/{id}(id=${mascota.idMascota})}" class="btn btn-outline-primary btn-sm">
                                     <i class="fas fa-eye"></i> <span th:text="#{viewPet.button}">Ver</span>
                                 </a>
-                                <a th:href="@{/templates/user/editar/{id}(id=${mascota.idMascota})}" class="btn btn-outline-secondary btn-sm">
+                                <a th:href="@{/mascotas/editar/{id}(id=${mascota.idMascota})}" class="btn btn-outline-secondary btn-sm">
                                     <i class="fas fa-edit"></i> <span th:text="#{editPet.button}">Editar</span>
                                 </a>
-                                <a th:href="@{/templates/user/eliminar/{id}(id=${mascota.idMascota})}"
+                                <a th:href="@{/mascotas/eliminar/{id}(id=${mascota.idMascota})}"
                                    class="btn btn-outline-danger btn-sm"
                                    th:onclick="'return confirm(\'' + #{deletePetConfirmation.message} + '\')'">
                                     <i class="fas fa-trash"></i> <span th:text="#{deletePet.button}">Eliminar</span>

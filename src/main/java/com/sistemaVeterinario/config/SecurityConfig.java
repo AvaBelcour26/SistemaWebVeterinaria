@@ -59,7 +59,7 @@ public class SecurityConfig {
                     redirectUrl = "/admin/usuarios";
                     break;
                 } else if (authority.getAuthority().equals("ROLE_USER")) {
-                    redirectUrl = "/citas/mis-citas";
+                    redirectUrl = "/mascotas";
                     break;
                 }
             }

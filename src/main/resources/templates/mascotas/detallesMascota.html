@@ -36,7 +36,7 @@
           </p>
 
           <div class="d-grid gap-2 mb-4">
-            <a th:href="@{/templates/user/editar/{id}(id=${mascota.idMascota})}" class="btn btn-outline-primary">
+            <a th:href="@{/mascotas/editar/{id}(id=${mascota.idMascota})}" class="btn btn-outline-primary">
               <i class="fas fa-edit"></i> <span th:text="#{editInfo.button}">Editar Información</span>
             </a>
             <a th:href="@{/citas/agendar}" class="btn btn-success">
