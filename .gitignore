@@ -31,7 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/static/assets/aboutUs/
-/src/main/resources/static/assets/auth/
-/src/main/resources/static/assets/home/
-/src/main/resources/static/assets/logo/
+# /src/main/resources/static/assets/aboutUs/
+# /src/main/resources/static/assets/auth/
+# /src/main/resources/static/assets/home/
+# /src/main/resources/static/assets/logo/
