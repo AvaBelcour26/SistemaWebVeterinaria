@@ -15,36 +15,62 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio para la gestión de citas veterinarias.
+ * Proporciona operaciones CRUD básicas y lógica de negocio para citas.
+ */
 @Service
 public class CitaService {
 
     @Autowired
     private CitaRepository citaRepository;
 
+    /**
+     * Guarda una cita en la base de datos.
+     * @param cita La entidad Cita a guardar
+     * @return La cita guardada
+     */
     public Cita save(Cita cita) {
         return citaRepository.save(cita);
     }
 
+    /**
+     * Busca una cita por su ID.
+     * @param id El ID de la cita
+     * @return La cita encontrada o null si no existe
+     */
     public Cita findById(Integer id) {
         return citaRepository.findById(id).orElse(null);
     }
 
+    /**
+     * Obtiene las citas asociadas a un propietario específico.
+     * @param propietario El propietario de las mascotas (opcional)
+     * @return Lista de citas del propietario
+     */
     public List<Cita> findByPropietario(Optional<Usuario> propietario) {
         return citaRepository.findByMascotaPropietario(propietario);
     }
 
+    /**
+     * Obtiene los horarios disponibles para agendar citas en una fecha específica.
+     * @param fecha La fecha para consultar disponibilidad
+     * @param servicioId El ID del servicio (opcional para filtrar por servicio)
+     * @return Lista de horarios disponibles
+     */
     public List<LocalTime> obtenerHorariosDisponibles(LocalDate fecha, Integer servicioId) {
-        // Horarios posibles: 16 slots de 30 minutos desde las 9:00 hasta las 17:00
+        // Generar todos los horarios posibles (cada 30 minutos de 8:00 a 17:00)
         List<LocalTime> todosLosHorarios = new ArrayList<>();
         for (int hora = 8; hora < 17; hora++) {
             todosLosHorarios.add(LocalTime.of(hora, 0));
             todosLosHorarios.add(LocalTime.of(hora, 30));
         }
 
-        // Buscar citas ya programadas para la fecha
+        // Obtiene el rango completo del día
         LocalDateTime inicioDia = LocalDateTime.of(fecha, LocalTime.of(0, 0));
         LocalDateTime finDia = LocalDateTime.of(fecha, LocalTime.of(23, 59));
 
+        // Consulta citas existentes
         List<Cita> citasProgramadas;
         if (servicioId != null) {
             citasProgramadas = citaRepository.findByFechaHoraBetweenAndServicioIdServicio(inicioDia, finDia, servicioId);
@@ -52,30 +78,28 @@ public class CitaService {
             citasProgramadas = citaRepository.findByFechaHoraBetween(inicioDia, finDia);
         }
 
-        // Extraer los horarios ya ocupados
+        // Extrae horarios ocupados
         List<LocalTime> horariosOcupados = citasProgramadas.stream()
                 .map(cita -> cita.getFechaHora().toLocalTime())
                 .collect(Collectors.toList());
 
-        // Filtrar horarios disponibles
+        // Filtra horarios disponibles
         return todosLosHorarios.stream()
                 .filter(horario -> !horariosOcupados.contains(horario))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Actualiza el estado de las citas pasadas a "Completada"
-     * @return número de citas actualizadas
+     * Actualiza automáticamente el estado de citas pasadas a "Completada".
+     * @return Número de citas actualizadas
      */
     @Transactional
     public int actualizarCitasPasadas() {
         LocalDateTime ahora = LocalDateTime.now();
 
-        int citasActualizadas = citaRepository.actualizarCitasPasadas(
+        return citaRepository.actualizarCitasPasadas(
                 Cita.EstadoCita.Completada,
                 Cita.EstadoCita.Programada,
                 ahora);
-
-        return citasActualizadas;
     }
 }

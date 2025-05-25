@@ -4,6 +4,13 @@ import com.sistemaVeterinario.dto.UsuarioDTO;
 import com.sistemaVeterinario.models.Role;
 import com.sistemaVeterinario.models.Usuario;
 import com.sistemaVeterinario.service.AdminUsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +27,7 @@ import java.util.Set;
 
 @Controller
 @RequestMapping("/admin/usuarios")
+@Tag(name = "Admin Usuario Controller", description = "Controlador administrativo para la gestión completa de usuarios del sistema")
 public class AdminUsuarioController {
 
     @Autowired
@@ -29,7 +37,27 @@ public class AdminUsuarioController {
      * Muestra el listado de usuarios con opción de búsqueda
      */
     @GetMapping
-    public String listarUsuarios(@RequestParam(required = false) String search, Model model) {
+    @Operation(
+            summary = "Listar usuarios",
+            description = "Muestra el listado completo de usuarios del sistema con funcionalidad de búsqueda opcional por nombre o email"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de usuarios obtenida exitosamente",
+                    content = @Content(mediaType = "text/html")
+            )
+    })
+    public String listarUsuarios(
+            @Parameter(
+                    description = "Término de búsqueda para filtrar usuarios por nombre o email",
+                    required = false,
+                    example = "juan@ejemplo.com"
+            )
+            @RequestParam(required = false) String search,
+
+            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
+            Model model) {
         List<Usuario> usuarios;
         if (search != null && !search.isEmpty()) {
             usuarios = adminUsuarioService.searchUsuarios(search);
@@ -45,7 +73,20 @@ public class AdminUsuarioController {
      * Muestra el formulario para crear un nuevo usuario
      */
     @GetMapping("/nuevo")
-    public String mostrarFormularioNuevo(Model model) {
+    @Operation(
+            summary = "Mostrar formulario de nuevo usuario",
+            description = "Presenta el formulario para crear un nuevo usuario con todos los roles disponibles para asignar"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Formulario de creación mostrado correctamente",
+                    content = @Content(mediaType = "text/html")
+            )
+    })
+    public String mostrarFormularioNuevo(
+            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
+            Model model) {
         model.addAttribute("usuario", new UsuarioDTO());
         model.addAttribute("roles", adminUsuarioService.getAllRoles());
         model.addAttribute("esNuevo", true);
@@ -56,11 +97,50 @@ public class AdminUsuarioController {
      * Procesa la creación de un nuevo usuario
      */
     @PostMapping("/nuevo")
-    public String crearUsuario(@Valid @ModelAttribute("usuario") UsuarioDTO usuario,
-                               BindingResult result,
-                               @RequestParam(required = false) Set<Integer> rolesIds,
-                               Model model,
-                               RedirectAttributes redirectAttributes) {
+    @Operation(
+            summary = "Crear nuevo usuario",
+            description = "Procesa los datos del formulario para crear un nuevo usuario en el sistema. Valida los datos y asigna los roles seleccionados"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "302",
+                    description = "Usuario creado exitosamente, redirige a la lista de usuarios",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Error en la validación o creación, muestra el formulario con errores",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos o duplicados (email/teléfono existente)",
+                    content = @Content(mediaType = "text/html")
+            )
+    })
+    public String crearUsuario(
+            @Parameter(
+                    description = "Datos del usuario a crear",
+                    required = true,
+                    schema = @Schema(implementation = UsuarioDTO.class)
+            )
+            @Valid @ModelAttribute("usuario") UsuarioDTO usuario,
+
+            @Parameter(description = "Resultado de la validación de datos", hidden = true)
+            BindingResult result,
+
+            @Parameter(
+                    description = "IDs de los roles a asignar al usuario",
+                    required = false,
+                    example = "[1, 2]"
+            )
+            @RequestParam(required = false) Set<Integer> rolesIds,
+
+            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
+            Model model,
+
+            @Parameter(description = "Atributos para redirección", hidden = true)
+            RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             model.addAttribute("roles", adminUsuarioService.getAllRoles());
@@ -95,7 +175,6 @@ public class AdminUsuarioController {
             model.addAttribute("error", "Datos inválidos: " + e.getMessage());
         } catch (Exception e) {
             // Manejo genérico para otros errores
-
             model.addAttribute("error", "Error inesperado al crear el usuario");
         } finally {
             // Prepara el modelo para volver a mostrar el formulario
@@ -111,7 +190,37 @@ public class AdminUsuarioController {
      * Muestra el formulario para editar un usuario existente
      */
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable Integer id, Model model) {
+    @Operation(
+            summary = "Mostrar formulario de edición",
+            description = "Presenta el formulario precargado con los datos del usuario para su edición, incluyendo roles actuales asignados"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Formulario de edición mostrado correctamente",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "302",
+                    description = "Usuario no encontrado, redirige a la lista de usuarios",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "text/html")
+            )
+    })
+    public String mostrarFormularioEditar(
+            @Parameter(
+                    description = "ID único del usuario a editar",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable Integer id,
+
+            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
+            Model model) {
         Optional<Usuario> optionalUsuario = adminUsuarioService.getUsuarioById(id);
 
         if (optionalUsuario.isPresent()) {
@@ -134,12 +243,62 @@ public class AdminUsuarioController {
      * Procesa la actualización de un usuario existente
      */
     @PostMapping("/editar/{id}")
-    public String actualizarUsuario(@PathVariable Integer id,
-                                    @Valid @ModelAttribute("usuario") Usuario usuario,
-                                    BindingResult result,
-                                    @RequestParam(required = false) Set<Integer> rolesIds,
-                                    Model model,
-                                    RedirectAttributes redirectAttributes) {
+    @Operation(
+            summary = "Actualizar usuario existente",
+            description = "Procesa los datos del formulario para actualizar la información de un usuario existente, incluyendo la reasignación de roles"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "302",
+                    description = "Usuario actualizado exitosamente, redirige a la lista de usuarios",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Error en la validación o actualización, muestra el formulario con errores",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos o error en la actualización",
+                    content = @Content(mediaType = "text/html")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "text/html")
+            )
+    })
+    public String actualizarUsuario(
+            @Parameter(
+                    description = "ID único del usuario a actualizar",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable Integer id,
+
+            @Parameter(
+                    description = "Datos actualizados del usuario",
+                    required = true,
+                    schema = @Schema(implementation = Usuario.class)
+            )
+            @Valid @ModelAttribute("usuario") Usuario usuario,
+
+            @Parameter(description = "Resultado de la validación de datos", hidden = true)
+            BindingResult result,
+
+            @Parameter(
+                    description = "IDs de los roles a asignar al usuario",
+                    required = false,
+                    example = "[1, 3]"
+            )
+            @RequestParam(required = false) Set<Integer> rolesIds,
+
+            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
+            Model model,
+
+            @Parameter(description = "Atributos para redirección", hidden = true)
+            RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             model.addAttribute("usuarioId", id);

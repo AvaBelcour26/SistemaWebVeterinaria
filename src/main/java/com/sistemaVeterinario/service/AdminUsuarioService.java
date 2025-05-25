@@ -16,6 +16,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio para la gestión de usuarios administrativos
+ * Maneja operaciones CRUD para usuarios y asignación de roles
+ */
 @Service
 public class AdminUsuarioService {
 
@@ -29,7 +33,8 @@ public class AdminUsuarioService {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * Obtiene todos los usuarios del sistema
+     * Obtiene todos los usuarios registrados
+     * @return Lista completa de usuarios
      */
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
@@ -37,6 +42,8 @@ public class AdminUsuarioService {
 
     /**
      * Busca usuarios por nombre o email
+     * @param searchTerm Término de búsqueda
+     * @return Lista de usuarios que coinciden con el término
      */
     public List<Usuario> searchUsuarios(String searchTerm) {
         if (searchTerm == null || searchTerm.isEmpty()) {
@@ -52,14 +59,18 @@ public class AdminUsuarioService {
     }
 
     /**
-     * Obtiene un usuario por su ID
+     * Obtiene un usuario específico por ID
+     * @param id ID del usuario
+     * @return Usuario encontrado (opcional)
      */
     public Optional<Usuario> getUsuarioById(Integer id) {
         return usuarioRepository.findById(id);
     }
 
     /**
-     * Convierte un Usuario a UsuarioDTO
+     * Convierte un Usuario a DTO para transferencia segura
+     * @param usuario Entidad Usuario
+     * @return DTO sin información sensible
      */
     public UsuarioDTO convertToDto(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
@@ -67,12 +78,14 @@ public class AdminUsuarioService {
         dto.setApellido(usuario.getApellido());
         dto.setEmail(usuario.getEmail());
         dto.setTelefono(usuario.getTelefono());
-        // No incluimos la contraseña por seguridad
         return dto;
     }
 
     /**
-     * Crea un nuevo usuario con los roles asignados
+     * Crea un nuevo usuario con roles asignados
+     * @param usuarioDTO Datos del usuario
+     * @param rolesIds IDs de roles a asignar
+     * @return Usuario creado
      */
     @Transactional
     public Usuario createUsuario(UsuarioDTO usuarioDTO, Set<Integer> rolesIds) {
@@ -97,6 +110,10 @@ public class AdminUsuarioService {
 
     /**
      * Actualiza un usuario existente
+     * @param id ID del usuario a actualizar
+     * @param usuarioDTO Nuevos datos del usuario
+     * @param rolesIds Nuevos roles a asignar
+     * @return Usuario actualizado o null si no existe
      */
     @Transactional
     public Usuario updateUsuario(Integer id, Usuario usuarioDTO, Set<Integer> rolesIds) {
@@ -108,12 +125,10 @@ public class AdminUsuarioService {
             usuario.setEmail(usuarioDTO.getEmail());
             usuario.setTelefono(usuarioDTO.getTelefono());
 
-            // Solo actualiza la contraseña si se proporciona una nueva
             if (usuarioDTO.getContrasena() != null && !usuarioDTO.getContrasena().isEmpty()) {
                 usuario.setContrasena(passwordEncoder.encode(usuarioDTO.getContrasena()));
             }
 
-            // Actualiza roles
             if (rolesIds != null && !rolesIds.isEmpty()) {
                 Set<Role> roles = new HashSet<>();
                 for (Integer roleId : rolesIds) {
@@ -130,6 +145,7 @@ public class AdminUsuarioService {
 
     /**
      * Obtiene todos los roles disponibles
+     * @return Lista completa de roles
      */
     public List<Role> getAllRoles() {
         return roleRepository.findAll();

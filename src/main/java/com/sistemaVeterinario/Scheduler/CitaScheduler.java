@@ -7,25 +7,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * Componente programado para ejecutar tareas automáticas relacionadas con citas veterinarias.
+ *
+ * <p>Realiza operaciones periódicas de mantenimiento sobre el estado de las citas.</p>
+ *
+ * <p>Anotado con {@link Component} para ser detectado por el contenedor de Spring.</p>
+ */
 @Component
 public class CitaScheduler {
 
+    // Registro de eventos (log)
     private static final Logger logger = LoggerFactory.getLogger(CitaScheduler.class);
 
+    // Conexión al servicio de citas
     @Autowired
     private CitaService citaActualizacionService;
 
     /**
-     * Tarea programada que se ejecuta cada 30 minutos para actualizar
-     * el estado de las citas pasadas a "Completada"
+     * Tarea automática que se ejecuta cada 30 minutos.
+     * Busca citas pasadas y las marca como "Completadas".
+     * Muestra en el log cuántas citas se actualizaron.
      */
-    @Scheduled(fixedRate = 30 * 60 * 1000) // 30 minutos en milisegundos
-    // O con cron (ejecutar cada 30 minutos): @Scheduled(cron = "0 0/30 * * * *")
+    @Scheduled(fixedRate = 30 * 60 * 1000) // Cada 30 minutos
     public void actualizarEstadoCitas() {
-        logger.info("Iniciando actualización de estado de citas...");
+        logger.info("Comenzando actualización de citas...");
 
         int citasActualizadas = citaActualizacionService.actualizarCitasPasadas();
 
-        logger.info("Actualización completada. {} citas actualizadas a estado Completada.", citasActualizadas);
+        logger.info("Listo! Se actualizaron {} citas.", citasActualizadas);
     }
 }

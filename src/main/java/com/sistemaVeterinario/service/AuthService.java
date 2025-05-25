@@ -21,6 +21,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio de autenticación que implementa la interfaz UserDetailsService de Spring Security.
+ * Maneja el registro de usuarios y la carga de detalles de usuario para autenticación.
+ */
 @Service
 public class AuthService implements UserDetailsService {
 
@@ -29,6 +33,13 @@ public class AuthService implements UserDetailsService {
     private final RoleService roleService;
     private final MessageSource messageSource;
 
+    /**
+     * Constructor para inyección de dependencias
+     * @param usuarioRepository Repositorio de usuarios
+     * @param passwordEncoder Codificador de contraseñas
+     * @param roleService Servicio de roles
+     * @param messageSource Fuente de mensajes internacionalizados
+     */
     @Autowired
     public AuthService(
             UsuarioRepository usuarioRepository,
@@ -41,6 +52,12 @@ public class AuthService implements UserDetailsService {
         this.messageSource = messageSource;
     }
 
+    /**
+     * Carga los detalles del usuario por email para la autenticación
+     * @param email Email del usuario a buscar
+     * @return UserDetails con la información del usuario
+     * @throws UsernameNotFoundException Si el usuario no existe
+     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -57,6 +74,12 @@ public class AuthService implements UserDetailsService {
         return new User(usuario.getEmail(), usuario.getContrasena(), authorities);
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema
+     * @param registroDTO DTO con los datos de registro
+     * @return Usuario registrado
+     * @throws IllegalArgumentException Si el email o teléfono ya existen
+     */
     @Transactional
     public Usuario registrarUsuario(UsuarioDTO registroDTO) {
         // Verifica si el email ya existe
@@ -67,7 +90,7 @@ public class AuthService implements UserDetailsService {
                             LocaleContextHolder.getLocale()));
         }
 
-        // Verificar si el teléfono ya existe
+        // Verifica si el teléfono ya existe
         if (usuarioRepository.existsByTelefono(registroDTO.getTelefono())) {
             throw new IllegalArgumentException(
                     messageSource.getMessage("error.phone.existing",
@@ -75,21 +98,21 @@ public class AuthService implements UserDetailsService {
                             LocaleContextHolder.getLocale()));
         }
 
-        // Crear nuevo usuario
+        // Crea nuevo usuario
         Usuario usuario = new Usuario();
         usuario.setNombre(registroDTO.getNombre());
         usuario.setApellido(registroDTO.getApellido());
         usuario.setEmail(registroDTO.getEmail());
         usuario.setTelefono(registroDTO.getTelefono());
 
-        // Encriptar la contraseña
+        // Encripta la contraseña
         usuario.setContrasena(passwordEncoder.encode(registroDTO.getContrasena()));
 
-        // Asignar rol de usuario por defecto
+        // Asigna rol de usuario por defecto
         Role rolUsuario = roleService.obtenerRolUsuario();
         usuario.setRoles(new HashSet<>(Collections.singletonList(rolUsuario)));
 
-        // Guardar en la base de datos
+        // Guarda en la base de datos
         return usuarioRepository.save(usuario);
     }
 }
