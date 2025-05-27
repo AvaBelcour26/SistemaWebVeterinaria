@@ -20,7 +20,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashSet;
+
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,50 +98,11 @@ public class AdminUsuarioController {
      * Procesa la creación de un nuevo usuario
      */
     @PostMapping("/nuevo")
-    @Operation(
-            summary = "Crear nuevo usuario",
-            description = "Procesa los datos del formulario para crear un nuevo usuario en el sistema. Valida los datos y asigna los roles seleccionados"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "302",
-                    description = "Usuario creado exitosamente, redirige a la lista de usuarios",
-                    content = @Content(mediaType = "text/html")
-            ),
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Error en la validación o creación, muestra el formulario con errores",
-                    content = @Content(mediaType = "text/html")
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Datos inválidos o duplicados (email/teléfono existente)",
-                    content = @Content(mediaType = "text/html")
-            )
-    })
-    public String crearUsuario(
-            @Parameter(
-                    description = "Datos del usuario a crear",
-                    required = true,
-                    schema = @Schema(implementation = UsuarioDTO.class)
-            )
-            @Valid @ModelAttribute("usuario") UsuarioDTO usuario,
-
-            @Parameter(description = "Resultado de la validación de datos", hidden = true)
-            BindingResult result,
-
-            @Parameter(
-                    description = "IDs de los roles a asignar al usuario",
-                    required = false,
-                    example = "[1, 2]"
-            )
-            @RequestParam(required = false) Set<Integer> rolesIds,
-
-            @Parameter(description = "Modelo para pasar datos a la vista", hidden = true)
-            Model model,
-
-            @Parameter(description = "Atributos para redirección", hidden = true)
-            RedirectAttributes redirectAttributes) {
+    public String crearUsuario(@Valid @ModelAttribute("usuario") UsuarioDTO usuario,
+                               BindingResult result,
+                               @RequestParam(required = false) Set<Integer> rolesIds,
+                               Model model,
+                               RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             model.addAttribute("roles", adminUsuarioService.getAllRoles());
@@ -175,6 +137,7 @@ public class AdminUsuarioController {
             model.addAttribute("error", "Datos inválidos: " + e.getMessage());
         } catch (Exception e) {
             // Manejo genérico para otros errores
+
             model.addAttribute("error", "Error inesperado al crear el usuario");
         } finally {
             // Prepara el modelo para volver a mostrar el formulario
@@ -185,7 +148,6 @@ public class AdminUsuarioController {
 
         return "admin/formulario";
     }
-
     /**
      * Muestra el formulario para editar un usuario existente
      */
